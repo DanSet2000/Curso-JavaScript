@@ -35,3 +35,15 @@ x--;                // x = x - 1
 // >, <, >=, <=
 console.log(ageDaniel > ageSalome);     // False
 console.log(ageSalome >= 18);           // True
+
+// Operadores de Igualdad
+
+const age = 18;
+
+if (age === 18){
+    console.log('You just became an adult');
+}
+
+// Igual flexible
+'18' == 18    // True
+'18' === 18   // False
