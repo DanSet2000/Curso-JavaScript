@@ -1,15 +1,6 @@
 'use strict';
 
-// ---- Rest Pattern ----
-
-// Hace lo contrario al operador "Spread"
-
-// 1) Desestructuracion
-
-const array = [1, 2, ...[3, 4]];    // Spread, Derecha del Operador
-
-const [a, b, ...others] = [1, 2, 3, 4, 5];  // Rest, Izquierda del Operador
-console.log(a, b ,others);  // 1 2 [3, 4, 5]
+// ---- Operadores de Asignacion Logica ----
 
 const restaurant = {
     name: 'Classico Italiano',
@@ -56,32 +47,41 @@ const restaurant = {
     }
 };
 
-// Ejemplo
+// Creacion nuevos Objetos
 
-const [pizza, ,risotto, ...otherFood] = [...restaurant.mainMenu, ...restaurant.starterMenu]  
-console.log(pizza, risotto, otherFood);
-
-// Objetos
-
-const { sat, ...weekdays} = restaurant.openingHours;
-console.log(weekdays);  // thu, fri
-
-// 2) Funciones
-
-const add = function(...numbers){
-    let sum = 0;
-    for (let i = 0; i < numbers.length; i++){
-        sum = sum + numbers[i];
-    }
-    console.log(sum);
+const restaurant1 = {
+    name: 'Capri',
+    numGuests: 20,
 }
 
-add(2, 3);
-add(5, 3, 7, 2);
-add(8, 2, 5, 3, 2, 1, 4);
+const restaurant2 = {
+    name: 'La Piazza',
+    owner: 'Giovanni Rossi',
+}
 
-const x = [23, 5, 7];
-add(...x);
+// Asignando numGuests en ambos Restaurantes
 
-// Funcion del Objeto
-restaurant.orderPizza('Mushrooms', 'Onion', 'Olives', 'Spinach');
+restaurant1.numGuests = restaurant1.numGuests || 10;
+restaurant2.numGuests = restaurant2.numGuests || 10;
+
+console.log(restaurant1);
+console.log(restaurant2);
+
+// Operador de Asignacion de OR: Más conciso
+
+restaurant1.numGuests ||= 10;
+restaurant2.numGuests ||= 10;
+
+// Operador de Asignacion de Conocimiento Teológico
+
+restaurant1.numGuests ??= 10;
+restaurant2.numGuests ??= 10;
+
+// Operador de Asignación Final Teológico
+// Anonimizar los nombres del dueño del Restaurante
+
+restaurant1.owner = restaurant1.owner && '<ANONYMOUS>';     // Undefined
+restaurant2.owner = restaurant2.owner && '<ANONYMOUS>';     // ANONYMOUS
+
+restaurant1.owner &&= '<ANONYMOUS>';
+restaurant2.owner &&= '<ANONYMOUS>';
