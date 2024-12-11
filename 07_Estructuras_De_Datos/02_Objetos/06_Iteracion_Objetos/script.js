@@ -1,6 +1,6 @@
 'use strict';
 
-// ---- Bucles en Arreglos: Ciclo For-Of ----
+// ---- Iteración sobre Objetos ----
 
 // Objeto
 const restaurant = {
@@ -48,21 +48,33 @@ const restaurant = {
     }
 };
 
+// Obtener las propiedades de un Objeto
+const properties = Object.keys(restaurant.openingHours);
+console.log(properties);    // Thu Fri Sat
 
-// Arreglo con todo el Menu usando Spread
-const menu = [...restaurant.starterMenu, ...restaurant.mainMenu];
+let openString = `We are open on ${properties.length} days: `;
 
-// Declarando Bucle For-Of
-for (const item of menu){
-    console.log(item);
+
+// Iteracion sobre los Nombres de las Propiedades (Keys)
+
+for (const day of Object.keys(restaurant.openingHours)){
+    openString += `${day}, `;
 }
 
-// Mostrando el Elemento y el Indice Actual
-for (const item of menu.entries()){
-    console.log(`${item[0] + 1}: ${item[1]}`)
-}
+console.log(openString);
 
-// Mostrando el Elemento y el Indice Actual Desestructurandolo
-for (const [item, element] of menu.entries()){
-    console.log(`${item + 1}: ${element}`)
+// Iteracion sobre los Valores de las Propiedades (Funciona igual que con Propiedades)
+
+const values = Object.values(restaurant.openingHours);
+console.log(values);
+
+// Iteracion sobre el Objeto Entero
+
+// Entries (Llave y Valor)
+const entries = Object.entries(restaurant.openingHours);
+console.log(entries);
+
+for (const [key, { open, close }] of entries) {
+    console.log(`On ${key} we open at ${open} and close at ${close}`);
 }
+  

@@ -1,6 +1,6 @@
 'use strict';
 
-// ---- Bucles en Arreglos: Ciclo For-Of ----
+// ---- Encadenamiento Opcional (?.) ----
 
 // Objeto
 const restaurant = {
@@ -49,20 +49,31 @@ const restaurant = {
 };
 
 
-// Arreglo con todo el Menu usando Spread
-const menu = [...restaurant.starterMenu, ...restaurant.mainMenu];
+// Obteniendo Propiedad que no existe en el Objeto
+console.log(restaurant.openingHours.mon);   // Undefined
 
-// Declarando Bucle For-Of
-for (const item of menu){
-    console.log(item);
+// Usando Encadenamiento Opcional (?.)
+console.log(restaurant.openingHours?.mon?.open);
+
+// ---- Ejemplo ----
+
+const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+// Iterando sobre los dias 
+
+for (const day of days){
+    const open = restaurant.openingHours[day]?.open || 'closed';
+    console.log(`On ${day}, we open at ${open}`)
 }
 
-// Mostrando el Elemento y el Indice Actual
-for (const item of menu.entries()){
-    console.log(`${item[0] + 1}: ${item[1]}`)
-}
+// Metodos
 
-// Mostrando el Elemento y el Indice Actual Desestructurandolo
-for (const [item, element] of menu.entries()){
-    console.log(`${item + 1}: ${element}`)
-}
+console.log(restaurant.order?.(0, 1) ?? 'Method does not exist');
+
+console.log(restaurant.orderRisotto?.(0, 1) ?? 'Method does not exist');
+
+// Arreglos
+
+const users = [{ name: 'Jonas', email: 'hello@jonas.com' }];
+
+console.log(users[0]?.name ?? 'User array empty');

@@ -1,6 +1,6 @@
 'use strict';
 
-// Short Circuiting (&&) y (||)
+// ---- Short Circuiting (&&) y (||) ----
 
 // Operador OR (||)
 
