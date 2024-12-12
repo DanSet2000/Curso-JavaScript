@@ -28,3 +28,22 @@ console.log(airline.lastIndexOf('r'));  //10
 console.log(airline.slice(4));      // Air Portugal
 console.log(airline.slice(4, 7));   // Air
 
+console.log(airline.slice(0, airline.indexOf(' ')));         // Obtener una palabra hasta un espacio vacio
+console.log(airline.slice(airline.lastIndexOf(' ') + 1))     // Portugal
+
+console.log(airline.slice(-2));     // al
+
+// ---- Ejemplo ----
+const checkMiddleSeat = function(seat){
+    // B y E son asientos de la Mitad
+    const asiento = seat.slice(-1);
+    if (asiento === 'B' || asiento === 'E'){
+        console.log('You got the middle seat');
+    }else{
+        console.log('You got lucky');
+    }
+}
+
+checkMiddleSeat('11B');
+checkMiddleSeat('23C');
+checkMiddleSeat('3E');
