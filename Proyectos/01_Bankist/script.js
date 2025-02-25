@@ -1,7 +1,5 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
 // BANKIST APP
 
 // Data
@@ -61,16 +59,29 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+// Manipulacion del DOM
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+// -- Funcion para desplegar los Movimientos de la cuenta en el Dashboard
+const displayMovements = function(movements){
+  // Vaciar el contenedor y sobreescribir con la información de la función
+  containerMovements.innerHTML = '';
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+  movements.forEach(function(movement, index){
+    // Identificar si es un retiro o deposito
+    const type = movement > 0 ? 'deposit' : 'withdrawal'
+    // Variable con el contenido que queremos desplegar
+    const html = `        
+      <div class="movements__row">
+        <div class="movements__type movements__type--${type}">${index + 1} ${type}</div>
+        <div class="movements__value">${movement}</div>
+      </div> `;
+
+    // Parámetros: Posicion donde pondremos el HTML, el String que contiene el HTML
+    containerMovements.insertAdjacentHTML('afterbegin', html);  
+  })
+}
+displayMovements(account1.movements);
+
+
 
 /////////////////////////////////////////////////
