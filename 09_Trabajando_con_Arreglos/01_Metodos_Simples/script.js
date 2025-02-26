@@ -16,7 +16,7 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 let arr = ['a', 'b', 'c', 'd', 'e'];
 
-// -- Slice --
+// ---- SLICE ----
 
 arr.slice(2);       // Se empieza a extraer el arreglo desde la posición 2
 console.log(arr.slice(2));      // [c, d, e]
@@ -32,7 +32,7 @@ console.log(arr.slice(1, -2));  // [b ,c]
 
 arr.slice();        // Crea una copia del arreglo
 
-// -- Splice --
+// ---- SPLICE ----
 
 let arraySplice = ['a', 'b', 'c', 'd', 'e'];
 
@@ -42,7 +42,7 @@ console.log(arraySplice.splice(2));     // [a, b]
 // Eliminar el ultimo elemento de un arreglo
 console.log(arraySplice.splice(-1));
 
-// -- Reverse --
+// ---- REVERSE ----
 
 let arrayReverse = ['a', 'b', 'c', 'd', 'e'];
 
@@ -50,18 +50,18 @@ const arrayReverse2 = ['j', 'i', 'h', 'g', 'f'];
 
 console.log(arrayReverse2.reverse());   // [f, g, h, i, j]
 
-// -- Concat --
+// ---- CONCAT ----
 
 // El primer arreglo sera el que llame al metodo y el segundo al que pasamos el metodo
 const letters = arrayReverse.concat(arrayReverse2);   
 
 console.log(letters);
 
-// -- Join --
+// ---- JOIN ----
 
 console.log(letters.join('-'));     // [a-b-c-d-e-f-g-h-i]
 
-// -- At --
+// ---- AT ----
 
 const arrayAt = [23, 11, 64];
 

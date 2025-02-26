@@ -80,8 +80,155 @@ const displayMovements = function(movements){
     containerMovements.insertAdjacentHTML('afterbegin', html);  
   })
 }
-displayMovements(account1.movements);
-
-
 
 /////////////////////////////////////////////////
+
+// -- Funcion para computar los nombres de usuario de cada propietario de una cuenta en la aplicación.
+const createUsernames = function(accs){
+  // Se agrega una nueva propiedad en cada cuenta denominada "Username"
+  accs.forEach(function(acc){
+    // Convertir a minusculas y Separando palabras por Espacios
+    acc.username = acc.owner.toLowerCase().split(' ').map(function(name){
+      return name[0]; 
+    }).join('');     // Uniendo la iniciales de cada nombre
+  });
+};
+
+createUsernames(accounts);
+console.log(accounts);
+
+/////////////////////////////////////////////////
+
+// -- Funcion para calcular el balance global de la cuenta en base a sus movimientos
+const calcDisplayBalance = function(account){
+  const balance = account.movements.reduce(function(accumulator, currentMovement){
+    return accumulator += currentMovement
+  }, 0);
+  account.balance = balance;
+  labelBalance.textContent = `${balance} €`
+}
+
+/////////////////////////////////////////////////
+
+// -- Funcion para calcular los ingresos y egresos totales de la Cuenta
+
+const calcDisplaySummary = function(account){
+  // Ingresos
+  const incomes = account.movements.filter(movement => movement > 0)
+                           .reduce((accumulator, currentMov) => accumulator + currentMov, 0);
+  // Mostrar Ingresos en Pantalla
+  labelSumIn.textContent = `${incomes} €`;
+
+  // Retiros
+  const outcomes = account.movements.filter(movement => movement < 0)
+                            .reduce((accumulator, currentMov) => accumulator + currentMov, 0);
+  // Mostrar Retiros en Pantalla
+  labelSumOut.textContent = `${Math.abs(outcomes)} €`;
+
+  // Intereses
+  const interest = account.movements.filter(movement => movement > 0)
+                            .map(deposit => deposit * account.interestRate/100)
+                            .filter((interest, index, array) => {return interest >= 1;})
+                            .reduce((accumulator, currentInterest) => accumulator + currentInterest, 0);
+  // Mostrar Intereses en Pantalla
+  labelSumInterest.textContent = `${Math.abs(interest)} €`;
+};
+
+/////////////////////////////////////////////////
+
+// -- Funcion para actualizar la Interfaz del Usuario
+
+const updateUI = function(currentAccount){
+  // Desplegar los movimientos realizados
+  displayMovements(currentAccount.movements);
+
+  // Desplegar balance general
+  calcDisplayBalance(currentAccount);
+
+  // Desplegar balance total
+  calcDisplaySummary(currentAccount)
+}
+
+/////////////////////////////////////////////////
+
+
+// -- Funcion para implementación de un sistema de inicio de sesión o Login
+
+let currentAccount;
+
+// Manejador de Eventos
+btnLogin.addEventListener('click', function(e){
+  // Previene que el formulario se envie
+  e.preventDefault();
+
+  // Obtener el usuario que desea acceder
+  currentAccount = accounts.find(account => account.username === inputLoginUsername.value);
+
+  // Verificar el PIN de ingreso
+  if (currentAccount?.pin === Number(inputLoginPin.value)){
+    // Desplegar la interfaz y mensaje
+    labelWelcome.textContent = `Welcome Back, ${currentAccount.owner.split(' ')[0]}`  // Obtener el Primer Nombre del Usuario
+    containerApp.style.opacity = 1;
+
+    // Limpiar campos del Input 
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // Desplegar la Interfaz Grafica
+    updateUI(currentAccount);
+  }
+});
+
+/////////////////////////////////////////////////
+
+// -- Funcion para implementación de sistema de transferencias entre usuarios
+
+// Manejador de Eventos
+btnTransfer.addEventListener('click', function(e){
+  // Previene que el formulario se envie
+  e.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const receiverAccount = accounts.find(account => account.username === inputTransferTo.value);
+
+  // Limpiar campos del Input 
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  // Revisar el monto en la cuenta y si el usuario tiene dinero
+  if (amount > 0 && currentAccount.balance >= amount && receiverAccount?.username !== currentAccount.username){
+    // Realizando la Transferencia
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+
+    // Actualizando la Interfaz Gráfica
+    updateUI(currentAccount);
+  }
+
+});
+
+/////////////////////////////////////////////////
+
+// -- Funcion para realizar el cierre de una cuenta
+
+// Manejador de Eventos
+btnClose.addEventListener('click', function(e){
+    // Previene que el formulario se envie
+    e.preventDefault();
+
+    // Revisar usuario
+    if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin){
+      
+      const index = accounts.findIndex(acc => acc.username === currentAccount.username);
+      console.log(index);
+
+      // Eliminar cuenta
+      accounts.splice(index, 1);
+
+      // Esconder UI
+      containerApp.style.opacity = 0;
+    }
+
+    // Vaciar Campos 
+    inputCloseUsername.value = inputClosePin.value = '';
+})
