@@ -232,3 +232,47 @@ btnClose.addEventListener('click', function(e){
     // Vaciar Campos 
     inputCloseUsername.value = inputClosePin.value = '';
 })
+
+/////////////////////////////////////////////////
+
+// -- Funcion para solicitar un préstamo al Banco
+
+btnLoan.addEventListener('click', function(e){
+  // Previene que el formulario se envie
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  // Regla de Negocio
+  if (amount > 0 && currentAccount.movements.some(function(movement){
+    return movement >= amount * 0.1;
+  })){
+    // Agregar movimiento
+    currentAccount.movements.push(amount);
+
+    // Actualizar UI
+    updateUI(currentAccount);
+  }
+
+  // Limpiar Campos
+  inputLoanAmount.value = '';
+})
+
+/////////////////////////////////////////////////
+
+// -- Obtener el balance general de todos los movimientos de todas las cuentas del Banco
+
+const accountMovements = accounts.map(function(account){
+  return account.movements;
+})
+console.log(accountMovements);
+
+// Obtener todos los Movimientos
+const allMovements = accountMovements.flat();
+console.log(allMovements);
+
+// Calcular Balance General
+const overallBalance = allMovements.reduce(function(accumulator, current){
+  return accumulator += current
+})
+console.log(overallBalance)
