@@ -62,11 +62,16 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Manipulacion del DOM
 
 // -- Funcion para desplegar los Movimientos de la cuenta en el Dashboard
-const displayMovements = function(movements){
+const displayMovements = function(movements, sort = false){
   // Vaciar el contenedor y sobreescribir con la información de la función
   containerMovements.innerHTML = '';
 
-  movements.forEach(function(movement, index){
+  // Variable para Ordenar movimientos de la cuenta
+  const movs = sort ? movements.slice().sort(function(a, b){
+    return a - b;
+  }) : movements;
+
+  movs.forEach(function(movement, index){
     // Identificar si es un retiro o deposito
     const type = movement > 0 ? 'deposit' : 'withdrawal'
     // Variable con el contenido que queremos desplegar
@@ -276,3 +281,18 @@ const overallBalance = allMovements.reduce(function(accumulator, current){
   return accumulator += current
 })
 console.log(overallBalance)
+
+/////////////////////////////////////////////////
+
+// -- Función para Ordenar los movimientos de la cuenta de manera ascendente y descendente
+
+// Variable para volver a tener el arreglo como antes
+let sorted = false;
+
+btnSort.addEventListener('click', function(e){
+  // Previene que el formulario se envie
+  e.preventDefault();
+
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+})

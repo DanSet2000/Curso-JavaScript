@@ -110,4 +110,39 @@ const huskyWeight = breeds.find(function(breed){
 console.log(`The Husky's breed weight is :${huskyWeight}`);
 
 // Tarea 2
-const dogBothActivities = breeds.find();
+const dogBothActivities = breeds.find(function (breed) {
+    return breed.activities.includes('fetch') && breed.activities.includes('running');
+}).breed;
+console.log(dogBothActivities);
+
+// Tarea 3
+const allActivities = breeds.flatMap(function(breed){
+    return breed.activities;
+})
+console.log(allActivities);
+
+// Tarea 4
+const uniqueActivities = [...new Set(allActivities)];
+console.log(uniqueActivities);
+
+// Tarea 5
+const swimmingAdjacent = [...new Set (breeds.filter(function(breed){
+    return breed.activities.includes('swimming');
+}).flatMap(function(breed){
+    return breed.activities
+}).filter(function(activity){
+    return activity !== 'swimming'
+}))];
+console.log(swimmingAdjacent);
+
+// Tarea 6
+const breedWeight = breeds.every(function(breed){
+    return breed.averageWeight >= 10;
+});
+console.log(`The breed average weigth is above 10 kg? ${breedWeight}`);
+
+// Tarea 7
+const activeBreed = breeds.some(function(breed){
+    return breed.activities.length >= 3;
+})
+console.log(`Is there any breed active? ${activeBreed}`)
