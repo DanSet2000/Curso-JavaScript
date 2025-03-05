@@ -223,7 +223,7 @@ const updateUI = function(currentAccount){
 
 // -- Funcion para implementación de un sistema de inicio de sesión o Login
 
-let currentAccount;
+let currentAccount, timer;
 
 // Manejador de Eventos
 btnLogin.addEventListener('click', function(e){
@@ -254,6 +254,12 @@ btnLogin.addEventListener('click', function(e){
     // Limpiar campos del Input 
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
+
+    // Inicializar Temporizador
+    if (timer){             // Limpiar temporizados si ya existe uno
+      clearInterval(timer)
+    };
+    timer = startLogoutTimer();
     inputLoginPin.blur();
 
     // Desplegar la Interfaz Grafica
@@ -288,6 +294,10 @@ btnTransfer.addEventListener('click', function(e){
 
     // Actualizando la Interfaz Gráfica
     updateUI(currentAccount);
+
+    // Resetear el Temporizador
+    clearInterval(timer);
+    timer = startLogoutTimer();
   }
 
 });
@@ -332,15 +342,23 @@ btnLoan.addEventListener('click', function(e){
   if (amount > 0 && currentAccount.movements.some(function(movement){
     return movement >= amount * 0.1;
   })){
-    // Agregar movimiento
-    currentAccount.movements.push(amount);
 
-    // Agregar Fechas a la Transferencia
-    currentAccount.movementsDates.push(new Date().toISOString());
+    setTimeout(function(){
+      // Agregar movimiento
+      currentAccount.movements.push(amount);
 
-    // Actualizar UI
-    updateUI(currentAccount);
-  }
+      // Agregar Fechas a la Transferencia
+      currentAccount.movementsDates.push(new Date().toISOString());
+
+      // Actualizar UI
+      updateUI(currentAccount);
+    }, 2500);
+
+      // Resetear el Temporizador
+      clearInterval(timer);
+      timer = startLogoutTimer();
+
+  };
 
   // Limpiar Campos
   inputLoanAmount.value = '';
@@ -395,3 +413,34 @@ const minutes = `${now.getMinutes()}`.padStart(2, '0');
 // Formato Fecha 
 labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`
 
+/////////////////////////////////////////////////
+
+// -- Función para Agregar un Temporizador por Sesión de Usuario
+
+const startLogoutTimer = function(){
+
+  const tick = function(){
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    // En cada llamada, imprimir el tiempo restante en la UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // Al llegar a 0, detener el temporizador y cerrar la sesión
+    if (time === 0){
+      clearInterval(timer)
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.style.opacity = 0;
+    }
+
+    // Decrease en 1 Seg
+    time--;
+  }
+
+  // Establecer tiempo a 5 minutos
+  let time = 120;
+
+  // Llamar al temporizador cada segundo
+  tick();
+  const timer = setInterval(tick, 1000)
+  return timer;
+}
