@@ -5,9 +5,22 @@
 // Data
 const account1 = {
   owner: 'Jonas Schmedtmann',
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  movements: [200, 455.23, -306.5, 25000, -642.21, -133.9, 79.97, 1300],
   interestRate: 1.2, // %
   pin: 1111,
+
+  movementsDates: [
+    '2019-11-18T21:31:17.178Z',
+    '2019-12-23T07:42:02.383Z',
+    '2020-01-28T09:15:04.904Z',
+    '2020-04-01T10:17:24.185Z',
+    '2020-05-08T14:11:59.604Z',
+    '2020-05-27T17:01:17.194Z',
+    '2020-07-11T23:36:17.929Z',
+    '2020-07-12T10:51:36.790Z',
+  ],
+  currency: 'EUR',
+  locale: 'pt-PT', // de-DE
 };
 
 const account2 = {
@@ -15,6 +28,19 @@ const account2 = {
   movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
   interestRate: 1.5,
   pin: 2222,
+
+  movementsDates: [
+    '2019-11-01T13:15:33.035Z',
+    '2019-11-30T09:48:16.867Z',
+    '2019-12-25T06:04:23.907Z',
+    '2020-01-25T14:18:46.235Z',
+    '2020-02-05T16:33:06.386Z',
+    '2020-04-10T14:43:26.374Z',
+    '2020-06-25T18:49:59.371Z',
+    '2020-07-26T12:01:20.894Z',
+  ],
+  currency: 'USD',
+  locale: 'en-US',
 };
 
 const account3 = {
@@ -62,28 +88,66 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Manipulacion del DOM
 
 // -- Funcion para desplegar los Movimientos de la cuenta en el Dashboard
-const displayMovements = function(movements, sort = false){
+const displayMovements = function(account, sort = false){
   // Vaciar el contenedor y sobreescribir con la información de la función
   containerMovements.innerHTML = '';
 
-  // Variable para Ordenar movimientos de la cuenta
-  const movs = sort ? movements.slice().sort(function(a, b){
-    return a - b;
-  }) : movements;
+  // Objeto combinado para poder Filtrar Movimientos y Fechas
+  const combinedMovesDates = account.movements.map((movement, index) => ({
+    movement: movement,
+    movementDate: account.movementsDates.at(index),
+  }));
 
-  movs.forEach(function(movement, index){
+  // Variable para Ordenar movimientos de la cuenta
+  if(sort) combinedMovesDates.sort(function(a, b){
+    return a.movement - b.movement
+  })
+
+  combinedMovesDates.forEach(function(object, index){
+    // Desestructurar el Objeto
+    const {movement, movementDate} = object;
+
+    // Fecha
+    const date = new Date(movementDate);
+    const displayDate = formatMovementDate(date);
+
     // Identificar si es un retiro o deposito
     const type = movement > 0 ? 'deposit' : 'withdrawal'
+
     // Variable con el contenido que queremos desplegar
     const html = `        
       <div class="movements__row">
         <div class="movements__type movements__type--${type}">${index + 1} ${type}</div>
-        <div class="movements__value">${movement}</div>
+        <div class="movements__date">${displayDate}</div>
+        <div class="movements__value">${movement.toFixed(2)}</div>
       </div> `;
 
     // Parámetros: Posicion donde pondremos el HTML, el String que contiene el HTML
     containerMovements.insertAdjacentHTML('afterbegin', html);  
   })
+}
+
+/////////////////////////////////////////////////
+
+// -- Funcion para Dar Formatos a las Fechas Empleadas en el Banco
+const formatMovementDate = function(date){
+  const calcDaysPassed = function(date1, date2){
+    Math.round(Math.abs((date2 - date1) / (1000 * 60 * 60 *24)))
+  }
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else{
+    // Recorrer fechas de los movimientos y formato de Fechas
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth()+1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
 }
 
 /////////////////////////////////////////////////
@@ -110,7 +174,7 @@ const calcDisplayBalance = function(account){
     return accumulator += currentMovement
   }, 0);
   account.balance = balance;
-  labelBalance.textContent = `${balance} €`
+  labelBalance.textContent = `${balance.toFixed(2)} €`
 }
 
 /////////////////////////////////////////////////
@@ -122,13 +186,13 @@ const calcDisplaySummary = function(account){
   const incomes = account.movements.filter(movement => movement > 0)
                            .reduce((accumulator, currentMov) => accumulator + currentMov, 0);
   // Mostrar Ingresos en Pantalla
-  labelSumIn.textContent = `${incomes} €`;
+  labelSumIn.textContent = `${incomes.toFixed(2)} €`;
 
   // Retiros
   const outcomes = account.movements.filter(movement => movement < 0)
                             .reduce((accumulator, currentMov) => accumulator + currentMov, 0);
   // Mostrar Retiros en Pantalla
-  labelSumOut.textContent = `${Math.abs(outcomes)} €`;
+  labelSumOut.textContent = `${Math.abs(outcomes).toFixed(2)} €`;
 
   // Intereses
   const interest = account.movements.filter(movement => movement > 0)
@@ -136,7 +200,7 @@ const calcDisplaySummary = function(account){
                             .filter((interest, index, array) => {return interest >= 1;})
                             .reduce((accumulator, currentInterest) => accumulator + currentInterest, 0);
   // Mostrar Intereses en Pantalla
-  labelSumInterest.textContent = `${Math.abs(interest)} €`;
+  labelSumInterest.textContent = `${Math.abs(interest).toFixed(2)} €`;
 };
 
 /////////////////////////////////////////////////
@@ -145,7 +209,7 @@ const calcDisplaySummary = function(account){
 
 const updateUI = function(currentAccount){
   // Desplegar los movimientos realizados
-  displayMovements(currentAccount.movements);
+  displayMovements(currentAccount);
 
   // Desplegar balance general
   calcDisplayBalance(currentAccount);
@@ -174,6 +238,18 @@ btnLogin.addEventListener('click', function(e){
     // Desplegar la interfaz y mensaje
     labelWelcome.textContent = `Welcome Back, ${currentAccount.owner.split(' ')[0]}`  // Obtener el Primer Nombre del Usuario
     containerApp.style.opacity = 1;
+
+    // -- Función para Agregar y Trabajar con Fechas al Abrir la Aplicación
+    // Fecha Actual
+    const now = new Date(); 
+    // Day/Month/Year
+    const day = `${now.getDate()}`.padStart(2, '0');
+    const month = `${now.getMonth()+1}`.padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = now.getHours();
+    const minutes = `${now.getMinutes()}`.padStart(2, '0');
+    // Formato Fecha 
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`
 
     // Limpiar campos del Input 
     inputLoginUsername.value = '';
@@ -205,6 +281,10 @@ btnTransfer.addEventListener('click', function(e){
     // Realizando la Transferencia
     currentAccount.movements.push(-amount);
     receiverAccount.movements.push(amount);
+
+    // Agregar Fechas a la Transferencia
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAccount.movementsDates.push(new Date().toISOString());
 
     // Actualizando la Interfaz Gráfica
     updateUI(currentAccount);
@@ -246,7 +326,7 @@ btnLoan.addEventListener('click', function(e){
   // Previene que el formulario se envie
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value);
+  const amount = Math.floor(inputLoanAmount.value);
 
   // Regla de Negocio
   if (amount > 0 && currentAccount.movements.some(function(movement){
@@ -254,6 +334,9 @@ btnLoan.addEventListener('click', function(e){
   })){
     // Agregar movimiento
     currentAccount.movements.push(amount);
+
+    // Agregar Fechas a la Transferencia
+    currentAccount.movementsDates.push(new Date().toISOString());
 
     // Actualizar UI
     updateUI(currentAccount);
@@ -293,6 +376,22 @@ btnSort.addEventListener('click', function(e){
   // Previene que el formulario se envie
   e.preventDefault();
 
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 })
+
+/////////////////////////////////////////////////
+
+// -- Función para Agregar y Trabajar con Fechas al Abrir la Aplicación
+
+// Fecha Actual
+const now = new Date(); 
+// Day/Month/Year
+const day = `${now.getDate()}`.padStart(2, '0');
+const month = `${now.getMonth()+1}`.padStart(2, '0');
+const year = now.getFullYear();
+const hour = now.getHours();
+const minutes = `${now.getMinutes()}`.padStart(2, '0');
+// Formato Fecha 
+labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`
+
