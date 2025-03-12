@@ -238,3 +238,149 @@ window.addEventListener('scroll', function(){
   }
 
 })
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+// -- Revelando Elementos a Medida Que se Acerca a Ellos
+
+// Uso de la API Observador de Intersecciones
+
+// Seleccionar todas las secciones a ver
+const allSections = document.querySelectorAll('.section');
+
+const revealSection = function(entries, observer){
+  const [entry] = entries;
+  entries.forEach(function(entry){
+    if (!entry.isIntersecting) return;
+
+    entry.target.classList.remove('section--hidden');
+    observer.unobserve(entry.target);
+  })
+
+
+}
+
+const sectionObserver = new IntersectionObserver(revealSection,{
+  root: null,
+  threshold: 0.15,
+
+});
+
+// Iterar sobre la lista de Nodos
+allSections.forEach(function(section){
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden')
+})
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+// -- Imágenes de Carga Diferida 
+
+// Seleccionar imagenes con la propiedad data-src
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+// Funcion de Retorno
+const loadImage = function(entries, observer){
+  const [entry] = entries;
+
+  if(!entry.isIntersecting) return;
+
+  // Remplazar src con data-src
+  entry.target.src = entry.target.dataset.src;
+  
+  entry.target.addEventListener('load', function(){
+    entry.target.classList.remove('lazy-img');
+  })
+}
+
+const imgObserver = new IntersectionObserver(loadImage, {
+  root: null,
+  threshold: 0,
+  rootMargin: '-200px',
+});
+
+// Iteracion
+imgTargets.forEach(function(image){
+  return imgObserver.observe(image);
+})
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+// -- Construyendo un Componente de Control Deslizante
+
+// Seleccion de elementos
+const slides = document.querySelectorAll('.slide');
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+const dotContainer = document.querySelector('.dots');
+
+// Slide actual
+let curSlide = 0;
+const maxSlide = slides.length;
+
+//const slider = document.querySelector('.slider');
+//slider.style.transform = 'scale(0.4) translateX(-800px)';
+//slider.style.overflow = 'visible';
+
+// Crear puntos de cada Slide
+const createDots = function(){
+  slides.forEach(function(_, index){
+    dotContainer.insertAdjacentHTML('beforeend', `<button class="dots__dot" data-slide="${index}"></button>`);
+  });
+}
+createDots();
+
+// Poniendo Slides de Lado a Lado
+slides.forEach(function(slide, index){
+  slide.style.transform = `translateX(${100 * index}%)`
+})
+// 0%, 100%, 200%, 300%
+
+// Funcion para ir a Slide
+const goToSlide = function(curSlide){
+  slides.forEach(function(slide, index){
+    slide.style.transform = `translateX(${100 * (index - curSlide)}%)`;
+  });
+};
+
+// Ir al Slide Inicial
+goToSlide(0);
+
+// Ir al siguiente Slide
+const nextSlide = function(){
+  if (curSlide === maxSlide - 1){
+    curSlide = 0;
+  } else {
+    curSlide++;
+  }
+  goToSlide(curSlide);
+};
+
+// Ir al anterior Slide
+const prevSlide = function(){
+  if (curSlide === 0){
+    curSlide = maxSlide - 1;
+  } else {
+    curSlide--;
+  }
+  goToSlide(curSlide);
+};
+
+// Eventos de los Botones
+btnRight.addEventListener('click', nextSlide);
+btnLeft.addEventListener('click', prevSlide);
+
+// Agregar eventos de teclado
+document.addEventListener('keydown', function(e){
+  console.log(e)
+
+  if (e.key === 'ArrowLeft') prevSlide();
+  e.key === 'ArrowRight' && nextSlide();
+})
+
+dotContainer.addEventListener('click', function(e){
+  if (e.target.classList.contains('dots_dot')){
+    const {slide} = e.target.dataset.curSlide;
+    goToSlide(slide)
+  }
+})
