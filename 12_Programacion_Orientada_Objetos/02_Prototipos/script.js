@@ -53,3 +53,26 @@ Person.prototype.species = 'Homo Sapiens';
 console.log(jonas.species, matilda.species);
 
 // ---- HERENCIA Y CADENA DE PROTOTIPOS EN OBJETOS ----
+console.log(jonas.__proto__);
+// Object.prototype (El tope de la cadena de prototipo)
+console.log(jonas.__proto__.__proto__);             // Prototipo del Prototipo de Jonas
+console.log(jonas.__proto__.__proto__.__proto__);   // Null
+
+
+console.dir(Person.prototype.constructor);
+
+// Prototipo de un Arreglo
+
+const array = [3, 6, 4, 5, 9, 3, 2, 9];    // Lo mismo a: new Array === []
+console.log(array.__proto__);
+console.log(array.__proto__.__proto__);
+console.log(array.__proto__ === Array.prototype);   // True
+
+// Estableciendo una propiedad
+
+// Todas las matrices ahora heredaran este metodo
+Array.prototype.unique = function(){
+  return [...new Set(this)]
+};
+
+console.log(array.unique());
