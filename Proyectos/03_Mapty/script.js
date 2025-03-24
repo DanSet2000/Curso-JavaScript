@@ -14,6 +14,7 @@ class Workout{
 
     date = new Date();
     id = Date.now() + ''.slice(-10);
+    clicks = 0;
 
     constructor(coords, distance, duration){
         this.coords = coords;
@@ -26,6 +27,10 @@ class Workout{
 
         this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()}`
 
+    }
+
+    _click(){
+        this.clicks++;
     }
 }
 
@@ -69,14 +74,22 @@ class Cycling extends Workout{
 // Arquitectura de la Aplicacion
 class App{
     #map;
-    #mapEvent
+    #mapZoomLevel = 15;
+    #mapEvent;
     #workouts = [];
 
     constructor(){
+
+        // Obtener Posicion del Usuario
         this._getPosition();
+
+        // Obtener Data de Local Storage
+        this._getLocalStorage();
+
+        // Attach Event Handlers
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField)
-        containerWorkouts.addEventListener('click', this._moveToPopup);
+        containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     }
 
     // Metodos
@@ -95,9 +108,8 @@ class App{
         const {latitude} = position.coords;
         const {longitude} = position.coords;
 
-        console.log(`https://www.google.ec/maps/@${latitude},${longitude}`)
         const coords = [latitude, longitude]
-        this.#map = L.map('map').setView(coords, 15);
+        this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
         L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -105,6 +117,10 @@ class App{
 
         // Desplegar un Marcador en el lugar que Hagamos Click    
         this.#map.on('click', this._showForm.bind(this));    
+
+        this.#workouts.forEach(work => {
+            this._renderWorkoutMarker(work);
+        });
     }
 
     _showForm(mapE){
@@ -174,7 +190,6 @@ class App{
 
         // Agregar nuevo objeto al arreglo de Entrenamiento
         this.#workouts.push(workout);
-        console.log(workout);
 
         // Renderizar en el mapa como un marcador
         this._renderWorkoutMarker(workout);
@@ -185,10 +200,8 @@ class App{
         // Esconder Formulario y Limpiar Datos de Input
         this._hideForm();
         
-        // Limpiar Campos de Entrada
-        inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
-    
-        // Desplegar Marcador
+        // Almacenar en el Local Storage los entrenamientos
+        this._setLocalStorage();
 
     }
 
@@ -252,8 +265,46 @@ class App{
     }
 
     _moveToPopup(e){
-        
+        const workoutEl = e.target.closest('.workout');
+
+        if (!workoutEl) return;
+
+        const workout = this.#workouts.find(function(work){
+            return work.id === workoutEl.dataset.id;
+        });
+
+        this.#map.setView(workout.coords, this.#mapZoomLevel, {
+            animate: true,
+            pan: {
+                duration: 1
+            }
+        });
+
+        // Usando la Interfaz Publica
+        //workout._click();;
     }
+
+    _setLocalStorage(){
+        localStorage.setItem('workouts', JSON.stringify(this.#workouts))
+    }
+
+    _getLocalStorage(){
+        const data = JSON.parse(localStorage.getItem('workouts'));
+
+        if (!data) return;
+
+        this.#workouts = data;
+
+        this.#workouts.forEach(work => {
+            this._renderWorkout(work);
+        });
+    }
+
+    reset(){
+        localStorage.removeItem('workouts');
+        location.reload();
+    }
+
 }
 
 // Instancia de la clase App
