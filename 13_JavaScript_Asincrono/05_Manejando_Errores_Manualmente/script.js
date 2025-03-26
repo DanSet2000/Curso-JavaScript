@@ -5,12 +5,15 @@ const countriesContainer = document.querySelector('.countries');
 
 ///////////////////////////////////////
 
+// Manejo de Errores Manualmente
+
 // Funcion para Renderizar Errores
 const renderError = function(message){
   countriesContainer.insertAdjacentText('beforeend', message);
 
   countriesContainer.style.opacity = 1;
 }
+
 
 // Manejando Promesas Rechazadas
 
@@ -32,29 +35,32 @@ const renderCountry = function(data, className = ''){
   countriesContainer.style.opacity = 1;
 }
 
+// Funcion para obtener Datos y convertir a JSON
+const getJSON = function(url, errorMessage = 'Something went wrong'){
+  fetch(url).then(function(response){
+    if(!response.ok){
+    throw new Error(`Country not found ${response.status}`)
+    } 
+
+    return response.json(); // Convertir a JSON)
+  })
+};
 // Consumir la Promesa
 
 // Encadenando Promesas 
 
 const getCountryData = function (country) {
   // País principal
-  fetch(`https://restcountries.com/v2/name/${country}`)
-    .then(function (response) {
-      console.log(response);
-      return response.json(); // Convertir a JSON
-    })
+  getJSON(`https://restcountries.com/v2/name/${country}`, 'Country not Found')
     .then(function (data) {
       console.log(data);
       renderCountry(data[0]);
 
       const neighbour = data[0].borders[0];
-      if (!neighbour) return;
+      if (!neighbour) throw new Error('No neighbour found!');
 
       // País fronterizo
-      return fetch(`https://restcountries.com/v2/alpha/${neighbour}`);
-    })
-    .then(function (response) {
-      return response.json(); 
+      return getJSON(`https://restcountries.com/v2/alpha/${neighbour}`, 'Country not found');
     })
     .then(function (data) {
       renderCountry(data, 'neighbour');
