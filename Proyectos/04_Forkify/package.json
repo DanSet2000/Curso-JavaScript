@@ -4,17 +4,18 @@
   "description": "Recipe Application",
   "license": "ISC",
   "author": "Daniel Carvajal",
-  "type": "commonjs",
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html"
   },
   "devDependencies": {
     "@parcel/transformer-sass": "^2.14.4",
-    "parcel": "^2.14.4"
+    "parcel": "^2.14.4",
+    "svgo": "^3.3.2"
   },
   "dependencies": {
     "core-js": "^3.41.0",
+    "fractional": "^1.0.0",
     "regenerator-runtime": "^0.14.1"
   }
 }
