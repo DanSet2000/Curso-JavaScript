@@ -1,19 +1,15 @@
-import * as model from './model.js'
+import * as model from './model.js';
+import { MODAL_CLOSE_SEC } from './config.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
-import BookmarksView from './views/bookmarksView.js';
+import bookmarksView from './views/bookmarksView.js';
 import addRecipeView from './views/addRecipeView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import bookmarksView from './views/bookmarksView.js';
-
-const recipeContainer = document.querySelector('.recipe');
-
-// NEW API URL (instead of the one shown in the video)
-// https://forkify-api.jonas.io/
+import { async } from 'regenerator-runtime';
 
 // Llamado a la API con la Receta
 const controlRecipes = async function(){
@@ -37,6 +33,7 @@ const controlRecipes = async function(){
 
   } catch (err){
     recipeView.renderError();
+    console.error(err);
   }
 };
 
@@ -93,10 +90,38 @@ const controlAddBookmark = function(){
 }
 
 const controlBookmarks = function(){
-  bookmarks.render(model.state.bookmarks);
+  bookmarksView.render(model.state.bookmarks);
 }
 
-const controlAddRecipe = function(newRecipe){
+const controlAddRecipe = async function(newRecipe){
+  try {
+    // Mostrar el Loading Spinner
+    addRecipeView.renderSpinner();
+
+    // Actualizar la data de la Nueva Receta
+    await model.uploadRecipe(newRecipe);
+
+    // Render Receta
+    recipeView.render(model.state.recipe);
+
+    // Mensaje de Exito
+    addRecipeView.renderMessage();
+
+    // Render Bookmark Vista
+    bookmarksView.render(model.state.bookmarks);
+
+    // Cambiar el ID en la URL
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+
+    // Close Form Window
+    setTimeout(function(){
+      addRecipeView.toggleWindow()
+    }, MODAL_CLOSE_SEC * 1000);
+  } catch (error) {
+    console.error('💥', error)
+
+    addRecipeView.renderError(error.message)
+  }
 
 }
 
